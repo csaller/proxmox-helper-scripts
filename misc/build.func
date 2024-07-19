@@ -479,7 +479,6 @@ build_container() {
     -features $FEATURES
     -hostname $HN
     -tags proxmox-helper-scripts
-    -searchdomain=
     $NS
     -net0 name=eth0,bridge=vmbr0,hwaddr=Default,ip=$NET$GATE,tag=Default,mtu=Default
     -onboot 1
