@@ -480,7 +480,7 @@ build_container() {
     -hostname $HN
     -tags proxmox-helper-scripts
     $NS
-    -net0 name=eth0,bridge=vmbr0,hwaddr=Default,ip=$NET$GATE,tag=Default,mtu=Default
+    -net0 name=eth0,bridge=vmbr0,ip=$NET$GATE
     -onboot 1
     -cores $CORE_COUNT
     -memory $RAM_SIZE
