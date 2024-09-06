@@ -9,21 +9,20 @@ source <(curl -s https://raw.githubusercontent.com/csaller/proxmox-helper-script
 function header_info {
 clear
 cat <<"EOF"
-    ____    __          
-   / / /___/ /___ _____ 
-  / / / __  / __ `/ __ \
- / / / /_/ / /_/ / /_/ /
-/_/_/\__,_/\__,_/ .___/ 
-               /_/      
- 
+   ______      ____      __                    
+  / ____/___  / / /___ _/ /_  ____  _________ _
+ / /   / __ \/ / / __ `/ __ \/ __ \/ ___/ __ `/
+/ /___/ /_/ / / / /_/ / /_/ / /_/ / /  / /_/ / 
+\____/\____/_/_/\__,_/_.___/\____/_/   \__,_/  
+                                               
 EOF
 }
 header_info
 echo -e "Loading..."
-APP="lldap"
-var_disk="4"
-var_cpu="1"
-var_ram="512"
+APP="Collabora"
+var_disk="12"
+var_cpu="2"
+var_ram="1024"
 var_os="debian"
 var_version="12"
 variables
@@ -55,13 +54,13 @@ function default_settings() {
 }
 
 function update_script() {
-header_info
-if [[ ! -f /etc/systemd/system/lldap.service ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
-msg_info "Updating $APP"
-apt update
-apt upgrade -y lldap
-msg_ok "Updated $APP"
-exit
+  header_info
+  if [[ ! -f /lib/systemd/system/coolwsd.service ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
+  msg_info "Updating ${APP} LXC"
+  apt-get update &>/dev/null
+  apt-get -y upgrade &>/dev/null
+  msg_ok "Updated ${APP} LXC"
+  exit
 }
 
 start
@@ -69,5 +68,4 @@ build_container
 description
 
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} should be reachable by going to the following URL.
-         ${BL}http://${IP}:17170${CL} \n"
+echo -e "${APP} needs to be behind a proxy (Nginx Proxy Manager)."
