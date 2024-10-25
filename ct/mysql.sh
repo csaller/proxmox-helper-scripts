@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 source <(curl -s https://raw.githubusercontent.com/csaller/proxmox-helper-scripts/main/misc/build.func)
 # Copyright (c) 2021-2024 tteck
-# Author: tteck (tteckster)
-# Co-Author: remz1337
+# Author: tteck
+# Co-Author: MickLesk (Canbiz)
 # License: MIT
 # https://github.com/tteck/Proxmox/raw/main/LICENSE
 
 function header_info {
 clear
 cat <<"EOF"
-   ______      ____      __                    
-  / ____/___  / / /___ _/ /_  ____  _________ _
- / /   / __ \/ / / __ `/ __ \/ __ \/ ___/ __ `/
-/ /___/ /_/ / / / /_/ / /_/ / /_/ / /  / /_/ / 
-\____/\____/_/_/\__,_/_.___/\____/_/   \__,_/  
-                                               
+    __  ___      _____ ____    __ 
+   /  |/  /_  __/ ___// __ \  / / 
+  / /|_/ / / / /\__ \/ / / / / /  
+ / /  / / /_/ /___/ / /_/ / / /___
+/_/  /_/\__, //____/\___\_\/_____/
+       /____/                     
 EOF
 }
 header_info
 echo -e "Loading..."
-APP="Collabora"
-var_disk="12"
-var_cpu="2"
+APP="MySQL"
+var_disk="4"
+var_cpu="1"
 var_ram="1024"
 var_os="debian"
 var_version="12"
@@ -54,13 +54,13 @@ function default_settings() {
 }
 
 function update_script() {
-  header_info
-  if [[ ! -f /lib/systemd/system/coolwsd.service ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
-  msg_info "Updating ${APP} LXC"
-  apt-get update &>/dev/null
-  apt-get -y upgrade &>/dev/null
-  msg_ok "Updated ${APP} LXC"
-  exit
+header_info
+if [[ ! -f /usr/share/keyrings/mysql.gpg ]]; then msg_error "No ${APP} Installation Found!"; exit; fi
+msg_info "Updating ${APP} LXC"
+apt-get update &>/dev/null
+apt-get -y upgrade &>/dev/null
+msg_ok "Updated Successfully"
+exit
 }
 
 start
@@ -68,4 +68,3 @@ build_container
 description
 
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} needs to be behind a proxy (Nginx Proxy Manager)."

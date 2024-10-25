@@ -40,7 +40,7 @@ $STD apt-get install -y --no-install-recommends \
   mc
 msg_ok "Installed Dependencies"
 
-msg_info "Installing Python3 Dependencies"
+msg_info "Installing Python3 Dependencies (Patience)"
 $STD apt-get install -y --no-install-recommends \
   python3 \
   python3-pip \
@@ -64,7 +64,7 @@ $STD apt-get install -y --no-install-recommends \
 msg_ok "Installed OCR Dependencies"
 
 msg_info "Installing JBIG2"
-$STD git clone https://github.com/agl/jbig2enc /opt/jbig2enc
+$STD git clone https://github.com/ie13/jbig2enc /opt/jbig2enc
 cd /opt/jbig2enc
 $STD bash ./autogen.sh
 $STD bash ./configure

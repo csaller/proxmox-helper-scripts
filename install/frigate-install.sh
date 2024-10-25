@@ -62,7 +62,6 @@ $STD pip3 wheel --wheel-dir=/wheels -r /opt/frigate/docker/main/requirements-whe
 cp -a /opt/frigate/docker/main/rootfs/. /
 export TARGETARCH="amd64"
 echo 'libc6 libraries/restart-without-asking boolean true' | debconf-set-selections
-wget -q -O /opt/frigate/docker/main/install_deps.sh https://raw.githubusercontent.com/blakeblackshear/frigate/dev/docker/main/install_deps.sh
 $STD /opt/frigate/docker/main/install_deps.sh
 $STD apt update
 $STD ln -svf /usr/lib/btbn-ffmpeg/bin/ffmpeg /usr/local/bin/ffmpeg
@@ -172,8 +171,6 @@ msg_ok "Installed Coral Object Detection Model"
 msg_info "Building Nginx with Custom Modules"
 $STD /opt/frigate/docker/main/build_nginx.sh
 sed -e '/s6-notifyoncheck/ s/^#*/#/' -i /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/nginx/run
-sed -i 's/error_log \/dev\/stdout warn\;/error_log \/dev\/shm\/logs\/nginx\/current warn\;/' /usr/local/nginx/conf/nginx.conf
-sed -i 's/access_log \/dev\/stdout main\;/access_log \/dev\/shm\/logs\/nginx\/current main\;/' /usr/local/nginx/conf/nginx.conf
 ln -sf /usr/local/nginx/sbin/nginx  /usr/local/bin/nginx
 msg_ok "Built Nginx"
 
@@ -231,6 +228,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=root
+# Environment=PLUS_API_KEY=
 ExecStartPre=+rm /dev/shm/logs/frigate/current
 ExecStart=/bin/bash -c "bash /opt/frigate/docker/main/rootfs/etc/s6-overlay/s6-rc.d/frigate/run 2> >(/usr/bin/ts '%%Y-%%m-%%d %%H:%%M:%%.S ' >&2) | /usr/bin/ts '%%Y-%%m-%%d %%H:%%M:%%.S '"
 StandardOutput=file:/dev/shm/logs/frigate/current

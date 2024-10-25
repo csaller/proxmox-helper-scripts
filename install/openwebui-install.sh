@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Copyright (c) 2021-2024 tteck
-# Author: tteck (tteckster)
+# Author: tteck
+# Co-Author: havardthom
 # License: MIT
 # https://github.com/tteck/Proxmox/raw/main/LICENSE
 
@@ -17,9 +18,15 @@ msg_info "Installing Dependencies"
 $STD apt-get install -y curl
 $STD apt-get install -y sudo
 $STD apt-get install -y mc
-$STD apt-get install -y git
 $STD apt-get install -y gpg
+$STD apt-get install -y git
 msg_ok "Installed Dependencies"
+
+msg_info "Installing Python3 Dependencies"
+$STD apt-get install -y --no-install-recommends \
+  python3 \
+  python3-pip
+msg_ok "Installed Python3 Dependencies"
 
 msg_info "Setting up Node.js Repository"
 mkdir -p /etc/apt/keyrings
@@ -32,43 +39,38 @@ $STD apt-get update
 $STD apt-get install -y nodejs
 msg_ok "Installed Node.js"
 
-msg_info "Installing pnpm"
-$STD npm install -g pnpm
-msg_ok "Installed pnpm"
-
-msg_info "Installing Jellyseerr (Patience)"
-git clone -q https://github.com/Fallenbagel/jellyseerr.git /opt/jellyseerr
-cd /opt/jellyseerr
-$STD git checkout main
-export CYPRESS_INSTALL_BINARY=0
-$STD pnpm install --frozen-lockfile
-export NODE_OPTIONS="--max-old-space-size=3072"
-$STD pnpm build
-mkdir -p /etc/jellyseerr/
-cat <<EOF >/etc/jellyseerr/jellyseerr.conf
-PORT=5055
-# HOST=0.0.0.0
-# JELLYFIN_TYPE=emby
+msg_info "Installing Open WebUI (Patience)"
+$STD git clone https://github.com/open-webui/open-webui.git /opt/open-webui
+cd /opt/open-webui/backend
+$STD pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+$STD pip3 install -r requirements.txt -U
+cd /opt/open-webui
+cp .env.example .env
+cat <<EOF >/opt/open-webui/.env
+ENV=prod
+ENABLE_OLLAMA_API=false
 EOF
-msg_ok "Installed Jellyseerr"
+$STD npm install
+export NODE_OPTIONS="--max-old-space-size=4096"
+$STD npm run build
+msg_ok "Installed Open WebUI"
 
 msg_info "Creating Service"
-cat <<EOF >/etc/systemd/system/jellyseerr.service
+cat <<EOF >/etc/systemd/system/open-webui.service
 [Unit]
-Description=jellyseerr Service
+Description=Open WebUI Service
 After=network.target
 
 [Service]
-EnvironmentFile=/etc/jellyseerr/jellyseerr.conf
-Environment=NODE_ENV=production
 Type=exec
-WorkingDirectory=/opt/jellyseerr
-ExecStart=/usr/bin/node dist/index.js
+WorkingDirectory=/opt/open-webui
+EnvironmentFile=/opt/open-webui/.env
+ExecStart=/opt/open-webui/backend/start.sh
 
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl enable -q --now jellyseerr.service
+systemctl enable -q --now open-webui.service
 msg_ok "Created Service"
 
 motd_ssh
